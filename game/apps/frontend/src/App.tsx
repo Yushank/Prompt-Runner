@@ -1,32 +1,20 @@
 import React from "react";
-import "./App.css";
+import { GameWindow } from "./components/gameWindow";
 
 function App() {
   return (
-    <div className="">
-      <header className="header">
-        <h1>Prompt-Runner Game</h1>
-        <p>Use Arrow Keys to move the characters</p>
-      </header>
-
-      <main className="main-content">
-        <div className="game-container">
-          <iframe
-            src="http://localhost:8080"
-            title="Phaser Game"
-            className="game-frame"
-          />
-        </div>
-
-        <div className="info-panel">
-          <h2>Game Info</h2>
-          <ul>
-            <li>Character: Blue Cirlce</li>
-            <li>Controls: Left/Right arrow keys</li>
-            <li>Speed: 200 pixels/second</li>
-          </ul>
-        </div>
-      </main>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-8">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          Prompt-Runner Game
+        </h1>
+        <p className="text-lg text-gray-600">
+          Use Arrow Keys to move the characters
+        </p>
+      </div>
+      <div className="w-full max-w-6xl">
+        <GameWindow />
+      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ type PhysicsCircle = Phaser.GameObjects.Arc & {
 export default class DynamicScene extends Phaser.Scene {
   private player!: PhysicsCircle;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private ground!: Phaser.Physics.Arcade.StaticGroup;
 
   constructor() {
     super({ key: "GameScene" });
@@ -15,9 +16,20 @@ export default class DynamicScene extends Phaser.Scene {
 
   //this create objects (characters, texts), that will appear on game
   create() {
-    this.player = this.add.circle(400, 300, 20, 0x3498db) as PhysicsCircle;
+    //ground
+    // this.ground = this.physics.add.staticGroup();
+    // const ground = this.add.rectangle(400, 240, 800, 20, 0x555555);
+    // this.physics.add.existing(ground, true);
+
+    // this.ground.add(ground);
+
+    //player
+    this.player = this.add.circle(100, 200, 20, 0x3498db) as PhysicsCircle;
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
+
+    //collision b/w player and ground
+    // this.physics.add.collider(this.player, this.ground);
 
     this.cursors = this.input.keyboard!.createCursorKeys();
 
@@ -26,17 +38,27 @@ export default class DynamicScene extends Phaser.Scene {
       color: "#ffffff",
     });
 
-    this.add.rectangle(400, 580, 800, 4, 0x555555);
+    // this.add.rectangle(400, 240, 800, 20, 0x555555);
   }
 
   //this define what an object will do
   update() {
-    this.player.body.setVelocity(0);
+    //resetting x value to prevent player sliding in left or right after hitting key
+    this.player.body.setVelocityX(0);
 
+    //horizontal movement
     if (this.cursors.left.isDown) {
-      this.player.body.setVelocity(-200);
+      this.player.body.setVelocityX(-200);
     } else if (this.cursors.right.isDown) {
-      this.player.body.setVelocity(200);
+      this.player.body.setVelocityX(200);
+    }
+
+    //jump action
+    if (
+      (this.cursors.up.isDown || this.cursors.space.isDown) &&
+      this.player.body.blocked.down // jump only when player is down not mid-air
+    ) {
+      this.player.body.setVelocityY(-400);
     }
   }
 }
