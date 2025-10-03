@@ -14,10 +14,25 @@ router.post("/input", async (req, res) => {
 
   try {
     console.log("console reached before calling ai function");
-    const input = await getPromptResponse(prompt);
-    console.log("response from api", input);
+    const response = await getPromptResponse(prompt);
+    console.log("console reached after calling ai function");
+    let responseText = response.choices[0]?.message?.content;
+    console.log("Raw response-text:", responseText);
 
-    io.emit("gameData", input);
+    // to remove the markdown code
+    responseText = responseText
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "")
+      .trim();
+    console.log("Cleaned response-text:", responseText);
+    const gameData = JSON.parse(responseText); //parsing json from ai response
+    console.log("response from api", response);
+    console.log("game-data:", gameData);
+
+    io.emit("gameData", {
+      type: "gameUpdate",
+      data: gameData,
+    });
 
     res.json({ message: "Generating game..." });
   } catch (error) {

@@ -14,22 +14,10 @@ export default class DynamicScene extends Phaser.Scene {
     super({ key: "GameScene" });
   }
 
-  //this create objects (characters, texts), that will appear on game
   create() {
-    //ground
-    // this.ground = this.physics.add.staticGroup();
-    // const ground = this.add.rectangle(400, 240, 800, 20, 0x555555);
-    // this.physics.add.existing(ground, true);
-
-    // this.ground.add(ground);
-
-    //player
     this.player = this.add.circle(100, 200, 20, 0x3498db) as PhysicsCircle;
     this.physics.add.existing(this.player);
     this.player.body.setCollideWorldBounds(true);
-
-    //collision b/w player and ground
-    // this.physics.add.collider(this.player, this.ground);
 
     this.cursors = this.input.keyboard!.createCursorKeys();
 
@@ -37,8 +25,6 @@ export default class DynamicScene extends Phaser.Scene {
       fontSize: "18px",
       color: "#ffffff",
     });
-
-    // this.add.rectangle(400, 240, 800, 20, 0x555555);
   }
 
   //this define what an object will do
