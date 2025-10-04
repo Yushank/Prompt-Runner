@@ -25,47 +25,47 @@ export async function getPromptResponse(
     messages: [
       {
         role: "user",
-        content: `You are a game asset generator. Based on the user’s prompt: ${prompt}, return ONLY a JSON object with the following structure:
+        content: `You are a pixel art generator. Based on the user’s prompt: ${prompt}, return ONLY a JSON object with the following structure and in this exact field order:
 
-        {
-          "character": {
-            "name": "character name",
-            "width": 32,
-            "height": 32,
-            "pixels": [
-              {"x": 0, "y": 0, "color": "#FF0000"},
-              {"x": 1, "y": 0, "color": "#00FF00"}
-              // ... pixel data
-            ]
-          },
-          "obstacles": [
-            {
-              "type": "rock", 
-              "width": 20,
-              "height": 20,
-              "color": "#808080"
+          {
+            "character": {
+              "name": "character name",
+              "width": 32,
+              "height": 32,
+              "pixels": [
+                {"x": 0, "y": 0, "color": "#FF0000"},
+                {"x": 1, "y": 0, "color": "#00FF00"}
+              ]
+            },
+            "obstacles": [
+              {
+                "type": "rock",
+                "width": 20,
+                "height": 20,
+                "color": "#808080"
+              }
+            ],
+            "speed": {
+              "value": 200
+            },
+            "jump": {
+              "type": "normal",
+              "velocityY": -300
             }
-            // more obstacles if needed
-          ],
-          "speed": {
-            "value": 200
-          },
-          "jump": {
-            "type": "big", 
-            "velocityY": -400
           }
-        }
 
-        Rules:
-        - If the user defines a character, generate pixel art for that character (16–64 pixels size).
-        - If the user defines obstacles, include them. Otherwise return a default obstacle: {"type": "rock", "width": 20, "height": 20, "color": "#808080"}.
-        - If speed is not defined, use default: {"value": 200}.
-        - If jump type is not defined, use default: {"type": "normal", "velocityY": -300}.
-        - Colors should be simple (red, blue, green, yellow, black, white, gray, etc.).
-        - Return ONLY valid JSON, no explanations or extra text.`,
+          Rules:
+          - Always return JSON with keys in this order: character → obstacles → speed → jump.
+          - Character width and height must each be between 16 and 64 pixels.
+          - If the user defines a character, generate pixel art inside "pixels". If not defined, still return a default character.
+          - If obstacles are not defined, return one default obstacle: {"type": "rock","width": 20,"height": 20,"color": "#808080"}.
+          - If speed is not defined, use default: {"value": 200}.
+          - If jump type is not defined, use default: {"type": "normal","velocityY": -300}.
+          - Use only simple colors (red, blue, green, yellow, black, white, gray, etc.).
+          - Return ONLY valid JSON. No explanations, no extra text, no comments.`,
       },
     ],
-    model: "llama-4-scout-17b-16e-instruct",
+    model: "qwen-3-coder-480b",
   })) as ChatCompletion;
 
   const message = response.choices[0]?.message;

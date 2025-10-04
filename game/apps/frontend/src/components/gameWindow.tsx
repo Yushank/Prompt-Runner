@@ -7,7 +7,10 @@ export const GameWindow = () => {
         <iframe
           src="http://localhost:8080"
           title="Phaser Game"
-          className="w-full h-65 rounded-lg shadow-2xl border-4 border-gray-300"
+          className="w-full h-96 rounded-lg shadow-2xl border-4 border-gray-300"
+          style={{ minHeight: "400px" }} // ← Force minimum height
+          allowFullScreen
+          loading="eager" // ← Load immediately
         />
       </div>
     </div>
