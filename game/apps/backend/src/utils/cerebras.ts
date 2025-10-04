@@ -24,55 +24,105 @@ export async function getPromptResponse(
   const response = (await client.chat.completions.create({
     messages: [
       {
+        role: "system",
+        content: `You are a pixel art generator. Generate pixel art as a grid of characters.
+      Use this format for the grid:
+      - '.' = transparent/empty
+      - '#' = main color
+      - 'O' = secondary color (eyes, details)
+      - 'X' = accent color
+
+      Rules:
+      - Return ONLY valid JSON.
+      - The grid must have exactly 16 rows, each row exactly 16 characters wide.
+      - Do NOT copy any example I give. Always create a new, unique design for the character.
+      - The palette must exactly match the characters used in the grid (don’t include unused colors).
+    `,
+      },
+      {
         role: "user",
-        content: `You are a pixel art generator. Based on the user’s prompt: ${prompt}, return ONLY a JSON object with the following structure and in this exact field order:
+        content: `Create a "${prompt}" character for a runner game.
 
-          {
-            "character": {
-              "name": "character name",
-              "width": 32,
-              "height": 32,
-              "pixels": [
-                {"x": 0, "y": 0, "color": "#FF0000"},
-                {"x": 1, "y": 0, "color": "#00FF00"}
-              ]
-            },
-            "obstacles": [
-              {
-                "type": "rock",
-                "width": 20,
-                "height": 20,
-                "color": "#808080"
-              }
-            ],
-            "speed": {
-              "value": 200
-            },
-            "jump": {
-              "type": "normal",
-              "velocityY": -300
-            }
+      Generate JSON with this structure (follow the structure, but invent your own pixel art grid):
+
+      {
+        "character": {
+          "name": "${prompt}",
+          "width": 16,
+          "height": 16,
+          "grid": [
+            "................",
+            "[16 characters row]",
+            "[16 characters row]",
+            "... total 16 rows ..."
+          ],
+          "palette": {
+            ".": "#00000000",
+            "#": "#808080",
+            "O": "#FFFFFF",
+            "X": "#FF0000"
           }
+        },
+        "obstacles": [
+          {
+            "type": "rock",
+            "width": 20,
+            "height": 20,
+            "color": "#808080"
+          }
+        ],
+        "speed": { "value": 200 },
+        "jump": { "velocityY": -400 }
+      }
 
-          Rules:
-          - Always return JSON with keys in this order: character → obstacles → speed → jump.
-          - Character width and height must each be between 16 and 64 pixels.
-          - If the user defines a character, generate pixel art inside "pixels". If not defined, still return a default character.
-          - If obstacles are not defined, return one default obstacle: {"type": "rock","width": 20,"height": 20,"color": "#808080"}.
-          - If speed is not defined, use default: {"value": 200}.
-          - If jump type is not defined, use default: {"type": "normal","velocityY": -300}.
-          - Use only simple colors (red, blue, green, yellow, black, white, gray, etc.).
-          - Return ONLY valid JSON. No explanations, no extra text, no comments.`,
+      Make sure the grid is unique and clearly shows the character design.
+      Do not just copy or repeat the placeholder example.
+    `,
       },
     ],
     model: "qwen-3-coder-480b",
   })) as ChatCompletion;
 
-  const message = response.choices[0]?.message;
+  const message = (response as any).choices[0]?.message;
   const responseText = message?.content;
   console.log("message in ai function:", responseText);
 
   console.log("response from ai:", response);
 
-  return response;
+  const parsed = JSON.parse(responseText || "{}");
+
+  //converting grid to pixels
+  if (parsed.character?.grid) {
+    parsed.character.pixels = girdToPixels(
+      parsed.character.grid,
+      parsed.character.palette
+    );
+  }
+
+  // return response;
+  return parsed;
+}
+
+interface Pixel {
+  x: number;
+  y: number;
+  color: string;
+}
+
+function girdToPixels(grid: string[], palette: any): Pixel[] {
+  const pixels: Pixel[] = [];
+
+  grid.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const char = row[x];
+      const color = palette[char];
+
+      //skip transparent
+      if (char !== "." && color !== "#00000000") {
+        pixels.push({ x, y, color });
+      }
+    }
+  });
+
+  return pixels;
 }
